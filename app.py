@@ -6,7 +6,7 @@ import base64
 
 app = Flask(__name__)
 
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv('EXTRACT_TABLES_KEY')
 
 def require_api_key(view_function):
     def decorated_function(*args, **kwargs):

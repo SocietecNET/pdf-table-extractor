@@ -1,6 +1,9 @@
 # Use the official Miniconda3 image as the base image
 FROM continuumio/miniconda3
 
+# Set environment variables
+# ENV API_KEY=windai
+
 # Set the working directory in the container
 WORKDIR /app
 
