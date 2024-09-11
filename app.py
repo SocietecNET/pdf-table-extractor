@@ -3,6 +3,8 @@ import camelot
 import os
 import uuid
 import base64
+import pymupdf4llm
+import tempfile
 
 app = Flask(__name__)
 
@@ -86,6 +88,36 @@ def extract_table_base64():
     result = process_pdf(filename, pages)
 
     return jsonify(result), 200
+
+@app.route('/pdf2markdown', methods=['POST'])
+@require_api_key
+def pdf2markdown():
+    try:
+        # Get the base64 encoded PDF string from the request
+        pdf_base64 = request.json.get('pdf_base64', None)
+        
+        if not pdf_base64:
+            return jsonify({'error': 'No PDF data provided'}), 400
+
+        # Decode the base64 PDF string
+        pdf_bytes = base64.b64decode(pdf_base64)
+
+        # Create a temporary file to store the decoded PDF
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+            temp_pdf.write(pdf_bytes)
+            temp_pdf_path = temp_pdf.name
+        
+        # Convert the PDF to markdown using the temp file path
+        md_text = pymupdf4llm.to_markdown(temp_pdf_path)
+
+        # Remove the temporary file
+        os.remove(temp_pdf_path)
+
+        # Return the markdown text
+        return jsonify({'markdown': md_text})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
