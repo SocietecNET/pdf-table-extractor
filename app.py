@@ -5,6 +5,7 @@ import uuid
 import base64
 import pymupdf4llm
 import tempfile
+import fitz
 
 app = Flask(__name__)
 
@@ -118,6 +119,35 @@ def pdf2markdown():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/convert_pdf_to_svgs', methods=['POST'])
+def convert_pdf_to_svgs():
+    # Step 1: Get the base64 PDF from the request
+    data = request.json
+    base64_pdf = data.get('pdf_base64')
+
+    if not base64_pdf:
+        return jsonify({"error": "No PDF data provided"}), 400
+
+    try:
+        # Step 2: Decode base64 PDF to binary
+        pdf_data = base64.b64decode(base64_pdf)
+
+        # Step 3: Load the PDF into PyMuPDF
+        pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
+
+        # Step 4: Extract each page as SVG
+        svg_list = []
+        for page_number in range(len(pdf_document)):
+            page = pdf_document.load_page(page_number)
+            svg = page.get_svg_image()
+            svg_list.append(svg)
+
+        # Step 5: Return the list of SVGs as JSON
+        return jsonify({"svgs": svg_list})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
