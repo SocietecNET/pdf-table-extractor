@@ -109,7 +109,7 @@ def pdf2markdown():
             temp_pdf_path = temp_pdf.name
         
         # Convert the PDF to markdown using the temp file path
-        md_text = pymupdf4llm.to_markdown(temp_pdf_path)
+        md_text = pymupdf4llm.to_markdown(temp_pdf_path, margins=0)
 
         # Remove the temporary file
         os.remove(temp_pdf_path)
