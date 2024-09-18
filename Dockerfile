@@ -34,7 +34,7 @@ RUN conda create -n camelot_env python=3.11 -y
 
 # Activate the environment and install Camelot and Flask
 RUN /bin/bash -c "source activate camelot_env && \
-    conda install -c conda-forge camelot-py[cv] flask -y && \
+    conda install -c conda-forge camelot-py[cv] flask pymupdf -y && \
     pip install -r requirements.txt"
 
 # Ensure the Conda environment is activated
