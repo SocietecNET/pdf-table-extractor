@@ -4,4 +4,3 @@ Flask
 camelot-py[cv]
 gunicorn
 pymupdf4llm
-fitz
