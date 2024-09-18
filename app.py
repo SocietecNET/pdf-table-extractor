@@ -90,13 +90,12 @@ def extract_table_base64():
 
     return jsonify(result), 200
 
-@app.route('/pdf2markdown', methods=['POST'])
+@app.route('/convert_pdf_to_markdown', methods=['POST'])
 @require_api_key
 def pdf2markdown():
     try:
         # Get the base64 encoded PDF string from the request
-        pdf_base64 = request.json.get('pdf_base64', None)
-        
+        pdf_base64 = request.json.get('pdf_base64', None)        
         if not pdf_base64:
             return jsonify({'error': 'No PDF data provided'}), 400
 
@@ -109,7 +108,7 @@ def pdf2markdown():
             temp_pdf_path = temp_pdf.name
         
         # Convert the PDF to markdown using the temp file path
-        md_text = pymupdf4llm.to_markdown(temp_pdf_path, margins=0)
+        md_text = pymupdf4llm.to_markdown(temp_pdf_path, margins=0, )
 
         # Remove the temporary file
         os.remove(temp_pdf_path)
@@ -120,34 +119,44 @@ def pdf2markdown():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/convert_pdf_to_svgs', methods=['POST'])
+@app.route('/convert_pdf_to_svg', methods=['POST'])
+@require_api_key
 def convert_pdf_to_svgs():
-    # Step 1: Get the base64 PDF from the request
     data = request.json
     base64_pdf = data.get('pdf_base64')
-
     if not base64_pdf:
         return jsonify({"error": "No PDF data provided"}), 400
-
     try:
-        # Step 2: Decode base64 PDF to binary
         pdf_data = base64.b64decode(base64_pdf)
-
-        # Step 3: Load the PDF into PyMuPDF
         pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
-
-        # Step 4: Extract each page as SVG
         svg_list = []
         for page_number in range(len(pdf_document)):
             page = pdf_document.load_page(page_number)
             svg = page.get_svg_image()
             svg_list.append(svg)
-
-        # Step 5: Return the list of SVGs as JSON
-        return jsonify({"svgs": svg_list})
-
+        return jsonify({"svg": svg_list})
     except Exception as e:
         return jsonify({"error": str(e)}), 500    
+    
+@app.route('/convert_pdf_to_html', methods=['POST'])
+@require_api_key
+def convert_pdf_to_htmls():
+    data = request.json
+    base64_pdf = data.get('pdf_base64')
+    if not base64_pdf:
+        return jsonify({"error": "No PDF data provided"}), 400
+    try:
+        pdf_data = base64.b64decode(base64_pdf)
+        pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
+        html_list = []
+        for page_number in range(len(pdf_document)):
+            page = pdf_document.load_page(page_number)
+            html = page.get_text("html")
+            html_list.append(html)
+        return jsonify({"html": html_list})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
