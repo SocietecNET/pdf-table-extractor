@@ -13,6 +13,8 @@ COPY . /app
 # Install system dependencies for Camelot, OpenCV, and OpenGL
 RUN apt-get update && \
     apt-get install -y \
+        gcc \
+        build-essential \
         ghostscript \
         python3-tk \
         libglib2.0-0 \
