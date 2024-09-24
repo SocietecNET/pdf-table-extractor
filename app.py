@@ -6,6 +6,8 @@ import base64
 import pymupdf4llm
 import tempfile
 import fitz
+from helpers.facedection import get_faces
+from helpers.svg import get_images_from_svg
 
 app = Flask(__name__)
 
@@ -156,6 +158,31 @@ def convert_pdf_to_htmls():
         return jsonify({"html": html_list})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/extract_pdf_images', methods=['POST'])
+@require_api_key
+def extract_pdf_images():
+    data = request.json
+    base64_pdf = data.get('pdf_base64')
+    if not base64_pdf:
+        return jsonify({"error": "No PDF data provided"}), 400
+    try:
+        pdf_data = base64.b64decode(base64_pdf)
+        pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
+        base64image_list = []
+        for page_number in range(len(pdf_document)):
+            page = pdf_document.load_page(page_number)
+            svg_content = page.get_svg_image()
+            for base64image in get_images_from_svg(svg_content):
+                base64image_list.append(base64image.replace("\r\n", ""))
+        # check for faces
+        image_list = []
+        for base64image in base64image_list:
+            is_photo = len(get_faces(base64image)) > 0
+            image_list.append(dict(image=base64image, is_photo=is_photo))
+        return jsonify({"images": image_list})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500    
 
 
 if __name__ == '__main__':
