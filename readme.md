@@ -1,6 +1,6 @@
 ## How to run
 - build the image ```docker build -t pdf-table-extractor-api .```
-- run ```docker run -p 5000:5000 -e API_KEY=test123 pdf-table-extractor-api```
+- run ```docker run -p 5000:5000 -e EXTRACT_TABLES_KEY=test123 pdf-table-extractor-api```
 
 ## How to use
 

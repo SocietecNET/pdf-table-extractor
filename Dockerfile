@@ -2,7 +2,7 @@
 FROM continuumio/miniconda3
 
 # Set environment variables
-# ENV API_KEY=windai
+# ENV EXTRACT_TABLES_KEY=test123
 
 # Set the working directory in the container
 WORKDIR /app
